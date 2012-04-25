@@ -1,0 +1,55 @@
+<holidays
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="holiday_rules.xsd"
+    >
+
+  <holiday name="元日" english_name="New Year's Day">
+    <is_substitutable>true</is_substitutable>
+    <fixed_rule>
+      <year_from>1949</year_from>
+      <year_to>unbounded</year_to>
+      <month>1</month>
+      <day>1</day>
+    </fixed_rule>
+  </holiday>
+
+  <holiday name="海の日" english_name="Marine Day">
+    <is_substitutable>false</is_substitutable>
+    <semi_fixed_rule>
+      <year_from>2003</year_from>
+      <year_to>unbounded</year_to>
+      <month>7</month>
+      <week_number>3</week_number>
+      <day_of_week>Monday</day_of_week>
+    </semi_fixed_rule>
+  </holiday>
+
+  <holiday name="春分の日" english_name="Vernal Equinox Day">
+    <is_substitutable>true</is_substitutable>
+    <day_formulated_rule>
+      <year_from>1851</year_from>
+      <year_to>1899</year_to>
+      <month>3</month>
+      <day_formula language="Ruby">
+        <![CDATA[
+          (19.8277 + 0.242194 * (year - 1980) - ((year - 1983) / 4).floor)).floor
+        ]]>
+      </day_formula>
+    </day_formulated_rule>
+  </holiday>
+
+  <holiday name="国民の祝日" english_name="Citizen's Holiday">
+    <is_substitutable>false</is_substitutable>
+    <conditional_rule>
+      <year_from>2003</year_from>
+      <year_to>unbounded</year_to>
+      <month>any</month>
+      <condition language="Ruby">
+        <![CDATA[
+          holiday?(prev_day) && substitutable?(prev_day) && holiday?(next_day) && substitutable?(next_day)
+        ]]>
+      </condition>
+    </conditional_rule>
+  </holiday>
+</holidays>
+

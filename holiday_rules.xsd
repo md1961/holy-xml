@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <xsd:element name="holidays"            type="listHolidays" />
+  <xsd:element name="holiday"             type="holidayType" />
+  <xsd:element name="is_substitutable"    type="xsd:boolean" />
+
+  <xsd:element name="fixed_rule"          type="fixedHolidayRuleType" /> 
+  <xsd:element name="semi_fixed_rule"     type="semiFixedHolidayRuleType" /> 
+  <xsd:element name="day_formulated_rule" type="dayFormulatedHolidayRuleType" /> 
+  <xsd:element name="conditional_rule"    type="conditionalHolidayRuleType" /> 
+
+  <xsd:element name="year_from"           type="yearType" /> 
+  <xsd:element name="year_to"             type="yearType" /> 
+  <xsd:element name="month"               type="monthType" /> 
+  <xsd:element name="day"                 type="dayType" /> 
+  <xsd:element name="week_number"         type="weekNumberType" /> 
+  <xsd:element name="day_of_week"         type="dayOfWeekType" /> 
+  <xsd:element name="day_formula"         type="formulaType" />
+  <xsd:element name="condition"           type="formulaType" />
+
+  <xsd:attribute name="name"              type="xsd:string" />
+  <xsd:attribute name="english_name"      type="xsd:string" />
+  <xsd:attribute name="language"          type="languageType" />
+
+  <xsd:complexType name="listHolidays">
+    <xsd:sequence>
+      <xsd:element ref="holiday" maxOccurs="unbounded" /> 
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="holidayType">
+    <xsd:sequence>
+      <xsd:element ref="is_substitutable" /> 
+      <xsd:choice>
+        <xsd:element ref="fixed_rule" />
+        <xsd:element ref="semi_fixed_rule" />
+        <xsd:element ref="day_formulated_rule" />
+        <xsd:element ref="conditional_rule" />
+      </xsd:choice>
+      <xsd:element ref="fixed_rule"          minOccurs="0" maxOccurs="unbounded" /> 
+      <xsd:element ref="semi_fixed_rule"     minOccurs="0" maxOccurs="unbounded" /> 
+      <xsd:element ref="day_formulated_rule" minOccurs="0" maxOccurs="unbounded" />
+      <xsd:element ref="conditional_rule"    minOccurs="0" maxOccurs="unbounded" />
+    </xsd:sequence>
+    <xsd:attribute ref="name" /> 
+    <xsd:attribute ref="english_name" /> 
+  </xsd:complexType>
+
+  <xsd:complexType name="baseHolidayRuleType">
+    <xsd:sequence>
+      <xsd:element ref="year_from" /> 
+      <xsd:element ref="year_to" /> 
+      <xsd:element ref="month" /> 
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="fixedHolidayRuleType">
+    <xsd:complexContent>
+      <xsd:extension base="baseHolidayRuleType">
+        <xsd:sequence>
+          <xsd:element ref="day" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="semiFixedHolidayRuleType">
+    <xsd:complexContent>
+      <xsd:extension base="baseHolidayRuleType">
+        <xsd:sequence>
+          <xsd:element ref="week_number" />
+          <xsd:element ref="day_of_week" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="dayFormulatedHolidayRuleType">
+    <xsd:complexContent>
+      <xsd:extension base="baseHolidayRuleType">
+        <xsd:sequence>
+          <xsd:element ref="day_formula" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:complexType name="conditionalHolidayRuleType">
+    <xsd:complexContent>
+      <xsd:extension base="baseHolidayRuleType">
+        <xsd:sequence>
+          <xsd:element ref="condition" />
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:simpleType name="yearType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="\d{4}|unbounded" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="monthType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[1-9]|1[012]|any" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="dayType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[1-9]|[12]\d|3[01]" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="weekNumberType">
+    <xsd:restriction base="xsd:string">
+      <xsd:pattern value="[1-5]" />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="dayOfWeekType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Monday"    />
+      <xsd:enumeration value="Tuesday"   />
+      <xsd:enumeration value="Wednesday" />
+      <xsd:enumeration value="Thursday"  />
+      <xsd:enumeration value="Friday"    />
+      <xsd:enumeration value="Saturday"  />
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="formulaType">
+    <xsd:simpleContent>
+      <xsd:extension base="xsd:string">
+        <xsd:attribute ref="language" use="required" />
+      </xsd:extension>
+    </xsd:simpleContent>
+  </xsd:complexType>
+
+  <xsd:simpleType name="languageType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="Ruby" />
+    </xsd:restriction>
+  </xsd:simpleType>
+</xsd:schema>
+
