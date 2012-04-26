@@ -13,47 +13,60 @@ import org.xml.sax.XMLReader;
 
 
 public class XmlSchemaValidator {
+
 	public static void main(String[] args) {
 		String xmlFilename = args[0];
 
 		try {
 			SAXParserFactory objFactory = SAXParserFactory.newInstance();
 			XMLReader objReader = objFactory.newSAXParser().getXMLReader();
-			objReader.setErrorHandler(new SchemaErr());
-			objReader.setFeature("http://xml.org/sax/features/validation", true);
-			objReader.setFeature("http://apache.org/xml/features/validation/schema", true);
-			objReader.setFeature("http://xml.org/sax/features/namespaces", true);
+			objReader.setErrorHandler(new SchemaErrorHandler());
+			objReader.setFeature(URL_VALIDATION, true);
+			objReader.setFeature(URL_SCHEMA    , true);
+			objReader.setFeature(URL_NAMESPACES, true);
 
 			objReader.parse(xmlFilename);
-			System.out.println("Parse complete.");
+			System.out.println(MESSAGE_COMPLETE);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
+
+	private static final String MESSAGE_COMPLETE = "Parse complete.";
+
+	private static final String URL_VALIDATION = "http://xml.org/sax/features/validation";
+	private static final String URL_SCHEMA     = "http://apache.org/xml/features/validation/schema";
+	private static final String URL_NAMESPACES = "http://xml.org/sax/features/namespaces";
 }
 
 
-class SchemaErr implements ErrorHandler {
+class SchemaErrorHandler implements ErrorHandler {
 	private SAXParseException e;
 
 	public void warning(SAXParseException e) {
 		this.e = e;
-		printLineNumberAndMessage("Warning");
+		printLineNumberAndMessage(LABEL_WARNING);
 	}
 
 	public void error(SAXParseException e) {
 		this.e = e;
-		printLineNumberAndMessage("Error");
+		printLineNumberAndMessage(LABEL_ERROR);
 	}
 
 	public void fatalError(SAXParseException e) {
 		this.e = e;
-		printLineNumberAndMessage("Fatal Error");
+		printLineNumberAndMessage(LABEL_FATAL);
 	}
 
+	private static final String FORMAT_ERROR_LEVEL_AND_LINE_NUMBER = "%s: Line %d\n";
+
 	private void printLineNumberAndMessage(String strErrorLevel) {
-		System.out.println(strErrorLevel + ": Line " + e.getLineNumber());
+		System.out.printf(FORMAT_ERROR_LEVEL_AND_LINE_NUMBER, strErrorLevel, e.getLineNumber());
 		System.out.println(e.getMessage());
 	}
+
+	private static final String LABEL_WARNING = "Warning";
+	private static final String LABEL_ERROR   = "Error";
+	private static final String LABEL_FATAL   = "Fatal";
 }
 
