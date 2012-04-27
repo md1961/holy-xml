@@ -32,16 +32,12 @@
   <xsd:complexType name="holidayType">
     <xsd:sequence>
       <xsd:element ref="is_substitutable" /> 
-      <xsd:choice>
+      <xsd:choice minOccurs="0" maxOccurs="unbounded"> 
         <xsd:element ref="fixed_rule" />
         <xsd:element ref="semi_fixed_rule" />
         <xsd:element ref="day_formulated_rule" />
         <xsd:element ref="conditional_rule" />
       </xsd:choice>
-      <xsd:element ref="fixed_rule"          minOccurs="0" maxOccurs="unbounded" /> 
-      <xsd:element ref="semi_fixed_rule"     minOccurs="0" maxOccurs="unbounded" /> 
-      <xsd:element ref="day_formulated_rule" minOccurs="0" maxOccurs="unbounded" />
-      <xsd:element ref="conditional_rule"    minOccurs="0" maxOccurs="unbounded" />
     </xsd:sequence>
     <xsd:attribute ref="name" /> 
     <xsd:attribute ref="english_name" /> 
