@@ -1,100 +1,71 @@
 #! /usr/local/jruby/bin/jruby
 
-require 'java'
+include Java
 
-module JavaIO
-  include_package 'java.io'
-end
-
-module JavaxXmlParsers
-  include_package 'javax.xml.parsers'
-end
-
-module OrgXmlSax
-  include_package 'org.xml.sax'
-end
-
-=begin
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
-=end
 
 class XmlSchemaValidator
 
-  def parse
+  def parse(xml_filename)
     begin
-      objFactory = JavaxXmlParsers::SAXParserFactory.newInstance
+      objFactory = javax.xml.parsers.SAXParserFactory.newInstance
+
+			objReader = objFactory.newSAXParser.getXMLReader
+			objReader.setErrorHandler(SchemaErrorHandler.new)
+			objReader.setFeature(URL_VALIDATION, true)
+			objReader.setFeature(URL_SCHEMA    , true)
+			objReader.setFeature(URL_NAMESPACES, true)
+
+			objReader.parse(xml_filename)
+      puts MESSAGE_COMPLETE
     rescue => e
       raise e
     end
   end
+
+	MESSAGE_COMPLETE = "Parse complete."
+
+	URL_VALIDATION = "http://xml.org/sax/features/validation"
+	URL_SCHEMA     = "http://apache.org/xml/features/validation/schema"
+	URL_NAMESPACES = "http://xml.org/sax/features/namespaces"
+end
+
+
+class SchemaErrorHandler
+  java_implements "org.xml.sax.ErrorHandler"
+
+  java_signature "void warning(SAXParseException)"
+	def warning(e)
+		@e = e
+		print_line_number_and_message(LABEL_WARNING)
+  end
+
+  java_signature "void error(SAXParseException)"
+	def error(e)
+		@e = e
+		print_line_number_and_message(LABEL_ERROR)
+  end
+
+  java_signature "void fatalError(SAXParseException)"
+	def fatalError(e)
+		@e = e
+		print_line_number_and_message(LABEL_FATAL)
+  end
+
+	FORMAT_ERROR_LEVEL_AND_LINE_NUMBER = "%s: Line %d"
+
+	def print_line_number_and_message(strErrorLevel)
+		puts FORMAT_ERROR_LEVEL_AND_LINE_NUMBER % [strErrorLevel, @e.getLineNumber]
+		puts @e.getMessage
+  end
+
+	LABEL_WARNING = "Warning"
+	LABEL_ERROR   = "Error"
+	LABEL_FATAL   = "Fatal"
 end
 
 
 if __FILE__ == $0
   xsv = XmlSchemaValidator.new
-  xsv.parse
+  xsv.parse(ARGV[0])
 end
-
-
-=begin
-			XMLReader objReader = objFactory.newSAXParser().getXMLReader();
-			objReader.setErrorHandler(new SchemaErrorHandler());
-			objReader.setFeature(URL_VALIDATION, true);
-			objReader.setFeature(URL_SCHEMA    , true);
-			objReader.setFeature(URL_NAMESPACES, true);
-
-			objReader.parse(xmlFilename);
-			System.out.println(MESSAGE_COMPLETE);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static final String MESSAGE_COMPLETE = "Parse complete.";
-
-	private static final String URL_VALIDATION = "http://xml.org/sax/features/validation";
-	private static final String URL_SCHEMA     = "http://apache.org/xml/features/validation/schema";
-	private static final String URL_NAMESPACES = "http://xml.org/sax/features/namespaces";
-}
-
-
-class SchemaErrorHandler implements ErrorHandler {
-	private SAXParseException e;
-
-	public void warning(SAXParseException e) {
-		this.e = e;
-		printLineNumberAndMessage(LABEL_WARNING);
-	}
-
-	public void error(SAXParseException e) {
-		this.e = e;
-		printLineNumberAndMessage(LABEL_ERROR);
-	}
-
-	public void fatalError(SAXParseException e) {
-		this.e = e;
-		printLineNumberAndMessage(LABEL_FATAL);
-	}
-
-	private static final String FORMAT_ERROR_LEVEL_AND_LINE_NUMBER = "%s: Line %d\n";
-
-	private void printLineNumberAndMessage(String strErrorLevel) {
-		System.out.printf(FORMAT_ERROR_LEVEL_AND_LINE_NUMBER, strErrorLevel, e.getLineNumber());
-		System.out.println(e.getMessage());
-	}
-
-	private static final String LABEL_WARNING = "Warning";
-	private static final String LABEL_ERROR   = "Error";
-	private static final String LABEL_FATAL   = "Fatal";
-}
-=end
 
